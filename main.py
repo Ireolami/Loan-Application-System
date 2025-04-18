@@ -3,6 +3,7 @@ from bvn import get_all_bvns
 from utils import validate_email, validate_phone, hash_password, input_password
 import sys
 import time
+from Bank_verification import create as bvn_create
 
 def register_user():
     print("📋 Fill in your details to continue:")
@@ -44,7 +45,8 @@ def register_user():
                         continue
                     elif decision == '2':
                         print("Redirecting to BVN creation portal...")
-                        # call your create() function here
+                        time.sleep(5)
+                        bvn_create()
                         return register_user()
                     elif decision == '3':
                         print("Goodbye.")
