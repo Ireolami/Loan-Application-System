@@ -1,5 +1,5 @@
 from database import get_connection
-from bvn import get_all_bvns
+from bvnn import get_all_bvns
 from utils import validate_email, validate_phone, hash_password, input_password
 import sys
 import time
@@ -14,10 +14,11 @@ def register_user():
         'Email', 'Next_of_kin', 'Next_of_kin_Number', 'BVN'
     ]
     user_data = []
-
+    #Looping of information needed to register
     for field in fields:
         while True:
             if field == "Password":
+                #if the loop is password, the password is hashed
                 hashed = input_password()
                 user_data.append(hashed)
                 break
@@ -69,10 +70,12 @@ def insert_to_database(data):
     VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
     """
     try:
+        """This confirms if there is no error and commits into database"""
         cursor.execute(query, data)
         conn.commit()
         print("✅ Registration successful!")
     except Exception as e:
+        #if there is an error, this prints the error
         print(f"❌ Failed to register: {e}")
     finally:
         cursor.close()
@@ -82,12 +85,17 @@ def start():
     print("Welcome to i-Loan App 🚀")
     has_bvn = input("Do you have a BVN? (yes/no): ").lower()
     if has_bvn in ['yes', 'y']:
+        """If user has vpn, this code directs user to Loan Registration portal"""
+        print("Kindly wait while we direct you to the Registration portal")
+        time.sleep(3)
         register_user()
     elif has_bvn in ['no', 'n']:
         decision = input("Would you like to register for BVN now? (yes/no): ").lower()
         if decision in ['yes', 'y']:
             print("Redirecting to BVN creation...")
-            # call your create() function here
+            # This part calls redirects user to BVN creation portal...
+            bvn_create()
+            print("Welcome Back... you can proceed to register...")
             register_user()
         else:
             print("You need a BVN to proceed.")
