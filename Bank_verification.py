@@ -36,15 +36,15 @@ def bvn_create():
 # bvn_create()
 
 def create():
-    querry = """INSERT INTO Bvn (FirstName, LastName,  Address, PhoneNumber, NOK, NOKN, Occupation, BVN) VALUES(%s,%s,%s,%s, %s,%s,%s,%s)
+    querry = """INSERT INTO Bvn ( FirstName, LastName,  Address, PhoneNumber, NOK, NOKN, Occupation, BVN) VALUES(%s,%s,%s,%s, %s,%s,%s,%s)
             """
 
     info= ['First Name', 'Last Name', 'Address','Phone Number', 'Next of Kin', 'Next of Kin Number', 'Occupation']
     val = []
     
     bvn = random.randrange(10102020301, 20203030432)
-    customer_id =20250421
-    val.append(customer_id)
+    # customer_id =20250421
+    # val.append(customer_id)
     print("You are welcome to BVN Creation portal")
     time.sleep(3)
     for field in info:
@@ -68,7 +68,7 @@ def create():
     conn.commit()
     cursor.close()
     print(f'Dear {val[0]}, you have successfully registered your BVN and your BVN number is {val[-1]}')
-create()
+# create()
 
 
     

@@ -1,73 +1,51 @@
 from database import get_connection
-from bvnn import get_all_bvns
+from bvnn import get_all_bvns as single
 from utils import validate_email, validate_phone, hash_password, input_password
 import sys
 import time
 from Bank_verification import create as bvn_create
 
+
+get_info =[]
+# from single_bvn import get_single as single_bvn
+
 def register_user():
     print("📋 Fill in your details to continue:")
 
     fields = [
-        'FirstName', 'LastName', 'Address',
-        'PhoneNumber', 'Username', 'Password',
-        'Email', 'Next_of_kin', 'Next_of_kin_Number', 'BVN'
+        'email', 'username', 'password'
     ]
-    user_data = []
+
     #Looping of information needed to register
     for field in fields:
         while True:
             if field == "Password":
                 #if the loop is password, the password is hashed
                 hashed = input_password()
-                user_data.append(hashed)
+                get_info.append(hashed)
                 break
 
             value = input(f"{field}: ").strip()
 
-            if field in ['PhoneNumber', 'Next_of_kin_Number']:
-                if not validate_phone(value):
-                    print("❌ Phone number must be 11 digits.")
-                    continue
-
-            elif field == 'Email':
+            if field == 'Email':
                 if not validate_email(value):
                     print("❌ Invalid email address.")
                     continue
 
-            elif field == 'BVN':
-                print("🔎 Checking BVN registry...")
-                time.sleep(2)
-                valid_bvns = get_all_bvns()
-                if value not in valid_bvns:
-                    print("❌ BVN not found.")
-                    decision = input("Enter 1 to retry, 2 to register BVN, 3 to exit: ")
-                    if decision == '1':
-                        continue
-                    elif decision == '2':
-                        print("Redirecting to BVN creation portal...")
-                        time.sleep(5)
-                        bvn_create()
-                        return register_user()
-                    elif decision == '3':
-                        print("Goodbye.")
-                        sys.exit()
-                    else:
-                        print("Invalid input.")
-                        continue
+        
 
-            user_data.append(value)
+            get_info.append(value)
             break
 
-    insert_to_database(user_data)
+    insert_to_database(get_info)
 
 def insert_to_database(data):
     conn = get_connection("i_loan")
     cursor = conn.cursor()
     query = """
     INSERT INTO customers
-    (FirstName, LastName, Address, PhoneNumber, Username, pwd, Email, Next_of_kin, Next_of_kin_Number, BVN)
-    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    (FirstName, LastName, Address, PhoneNumber,NOK, NOKN, Occupation, BVN, Email, Username, Password )
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s)
     """
     try:
         """This confirms if there is no error and commits into database"""
@@ -80,15 +58,26 @@ def insert_to_database(data):
     finally:
         cursor.close()
         conn.close()
-
+ 
 def start():
     print("Welcome to i-Loan App 🚀")
     has_bvn = input("Do you have a BVN? (yes/no): ").lower()
     if has_bvn in ['yes', 'y']:
-        """If user has vpn, this code directs user to Loan Registration portal"""
-        print("Kindly wait while we direct you to the Registration portal")
-        time.sleep(3)
-        register_user()
+        """If user has BVN, this code directs user to Loan Registration portal"""
+        bvn_search = int(input('Enter your bvn: '))
+        if bvn_search:
+            bvn= single(bvn_search)
+            # get_info.append(bvn[1:])
+            for each in bvn[1:]:
+                get_info.append(each)
+            print(f'Dear {get_info[0]}, you are being redirected to the i_Loan Registration App')
+            time.sleep(3)
+            register_user()   
+        else:
+            bvn_search = int(input('Enter your bvn: '))
+        # print("Kindly wait while we direct you to the Registration portal")
+        # time.sleep(3)
+        # register_user()
     elif has_bvn in ['no', 'n']:
         decision = input("Would you like to register for BVN now? (yes/no): ").lower()
         if decision in ['yes', 'y']:
