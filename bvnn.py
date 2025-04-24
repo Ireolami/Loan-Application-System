@@ -20,13 +20,15 @@ def get_all_bvns(bvn):
 def get_all_users():
     conn = get_connection('i_loan')
     cursor = conn.cursor()
+    
     cursor.execute('SELECT * from customers')
     users = cursor.fetchall()
     cursor.close()
     conn.close()
-    if users:
-        print(users)
-    else:
-        print('No User found')
+    # if users:
+    #     # print(users)
+    # else:
+    #     print('No User found')
     return users
-get_all_users()
+# bvn = input('Enter your bvn: ') 
+# get_all_users(bvn)

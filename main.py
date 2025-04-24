@@ -1,16 +1,22 @@
 from database import get_connection
-from bvnn import get_all_bvns as single
+from bvnn import get_all_bvns as single, get_all_users
 from utils import validate_email, validate_phone, hash_password, input_password
 import sys
 import time
 from Bank_verification import create as bvn_create
+from login import user_login as account_login
 
 
 get_info =[]
 # from single_bvn import get_single as single_bvn
 
+user_found = get_all_users()
+all_usernames = [user[10] for user in user_found]
+all_emails = [user[9] for user in user_found]
+all_bvns = [user[8] for user in user_found]
 def register_user():
     print("📋 Fill in your details to continue:")
+    
 
     fields = [
         'email', 'username', 'password'
@@ -19,20 +25,29 @@ def register_user():
     #Looping of information needed to register
     for field in fields:
         while True:
-            if field == "Password":
+            if field == "password":
                 #if the loop is password, the password is hashed
                 hashed = input_password()
                 get_info.append(hashed)
                 break
 
             value = input(f"{field}: ").strip()
-
+            
             if field == 'Email':
                 if not validate_email(value):
                     print("❌ Invalid email address.")
                     continue
+                if value in all_emails:
+                    print("❌ Email already in use")
+                    continue
 
-        
+            elif field =='username':
+                if value in all_usernames:
+                    print("❌ Username taken")
+                    continue
+                else:
+                    print("Username is valid")
+            
 
             get_info.append(value)
             break
@@ -52,6 +67,7 @@ def insert_to_database(data):
         cursor.execute(query, data)
         conn.commit()
         print("✅ Registration successful!")
+        account_login()
     except Exception as e:
         #if there is an error, this prints the error
         print(f"❌ Failed to register: {e}")
@@ -64,15 +80,20 @@ def start():
     has_bvn = input("Do you have a BVN? (yes/no): ").lower()
     if has_bvn in ['yes', 'y']:
         """If user has BVN, this code directs user to Loan Registration portal"""
+        global bvn_search
         bvn_search = int(input('Enter your bvn: '))
         if bvn_search:
             bvn= single(bvn_search)
-            # get_info.append(bvn[1:])
-            for each in bvn[1:]:
-                get_info.append(each)
-            print(f'Dear {get_info[0]}, you are being redirected to the i_Loan Registration App')
-            time.sleep(3)
-            register_user()   
+            if bvn not in all_bvns:
+                for each in bvn[1:]:
+                    get_info.append(each)
+                print(f'Dear {get_info[1]}, you are being redirected to the i_Loan Registration App')
+                time.sleep(3)
+                register_user()
+            else:
+                print('BVN in use\nYou are being redirected to login page....')
+                time.sleep(3)
+                account_login() 
         else:
             bvn_search = int(input('Enter your bvn: '))
         # print("Kindly wait while we direct you to the Registration portal")
